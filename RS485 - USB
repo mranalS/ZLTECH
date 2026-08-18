@@ -1,0 +1,47 @@
+from pymodbus.client import ModbusSerialClient
+import time
+
+PORT = "COM5"          # Change this
+BAUDRATE = 115200
+SLAVE_ID = 1
+
+client = ModbusSerialClient(
+    port=PORT,
+    baudrate=BAUDRATE,
+    bytesize=8,
+    parity="N",
+    stopbits=1,
+    timeout=1
+)
+
+print("Connecting to ZLAC8015D...")
+
+if not client.connect():
+    print("ERROR: Unable to open serial port")
+    quit()
+
+print("Serial port opened successfully.")
+
+try:
+    # Simple register-read test.
+    # Actual operational register addresses should be confirmed
+    # against your ZLAC8015D V4.2 register table.
+
+    result = client.read_holding_registers(
+        address=0x0000,
+        count=1,
+        slave=SLAVE_ID
+    )
+
+    if result.isError():
+        print("Driver did not respond:")
+        print(result)
+    else:
+        print("Communication successful!")
+        print("Register value:", result.registers[0])
+
+except Exception as e:
+    print("Communication error:", e)
+
+finally:
+    client.close()
